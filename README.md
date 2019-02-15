@@ -1,5 +1,7 @@
 # Mobe Cloud Utils
 
+[![Build Status](https://travis-ci.com/lsw1991abc/mobe-cloud-utils.svg?branch=master)](https://travis-ci.com/lsw1991abc/mobe-cloud-utils)
+[![Coverage Status](https://coveralls.io/repos/github/lsw1991abc/mobe-cloud-utils/badge.svg)](https://coveralls.io/github/lsw1991abc/mobe-cloud-utils)
 [![](https://jitpack.io/v/lsw1991abc/mobe-cloud-utils.svg)](https://jitpack.io/#lsw1991abc/mobe-cloud-utils)
 
 Mobe cloud utils

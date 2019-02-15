@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.github.lsw1991abc</groupId>
+  <artifactId>mobe-cloud-utils</artifactId>
+  <version>1.0.0</version>
+
+  <packaging>jar</packaging>
+  <url>https://github.com/lsw1991abc/mobe-cloud-utils</url>
+
+  <build>
+    <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+    <testSourceDirectory>${project.basedir}/src/test/java</testSourceDirectory>
+  </build>
+
+  <licenses>
+    <license>
+      <name>BSD 3-Clause License</name>
+      <url>https://opensource.org/licenses/BSD-3-Clause</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/lsw1991abc/mobe-cloud-utils/issues</url>
+  </issueManagement>
+
+  <developers>
+    <developer>
+      <id>lsw1991abc</id>
+      <name>Wizard Li</name>
+      <email>lsw1991abc@gmail.com</email>
+      <timezone>+8</timezone>
+    </developer>
+  </developers>
+
+</project>

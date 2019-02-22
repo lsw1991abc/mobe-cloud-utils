@@ -10,7 +10,7 @@ import java.util.Set;
  * @author lsw1991abc@gmail.com
  * @since 2019-02-14 09:43
  */
-public class CheckEmptyUtil {
+public final class CheckEmptyUtil {
 
   /**
    * 判断一个参数是否为空.

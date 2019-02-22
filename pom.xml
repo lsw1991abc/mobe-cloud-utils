@@ -6,7 +6,7 @@
 
   <groupId>com.github.lsw1991abc</groupId>
   <artifactId>mobe-cloud-utils</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 
   <packaging>jar</packaging>
   <url>https://github.com/lsw1991abc/mobe-cloud-utils</url>
@@ -20,7 +20,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.9.7</version>
+      <version>2.9.8</version>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>

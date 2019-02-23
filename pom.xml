@@ -11,6 +11,16 @@
   <packaging>jar</packaging>
   <url>https://github.com/lsw1991abc/mobe-cloud-utils</url>
 
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+    <java.version>1.8</java.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -65,6 +75,22 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.eluder.coveralls</groupId>
+        <artifactId>coveralls-maven-plugin</artifactId>
+        <version>4.3.0</version>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+        <version>2.7</version>
+        <configuration>
+          <format>xml</format>
+          <maxmem>256m</maxmem>
+          <!-- aggregated reports for multi-module projects -->
+          <aggregate>true</aggregate>
+        </configuration>
       </plugin>
     </plugins>
   </build>

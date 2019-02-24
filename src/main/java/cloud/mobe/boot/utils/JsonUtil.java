@@ -35,7 +35,7 @@ public final class JsonUtil {
     try {
       return mapper.writeValueAsString(value);
     } catch (JsonProcessingException ex) {
-      log.error("error when getJsonString! " + ex.getMessage());
+      log.error("error when getJsonString!", ex);
       return null;
     }
   }
@@ -77,7 +77,7 @@ public final class JsonUtil {
     try {
       return mapper.readValue(json, ref);
     } catch (IOException ex) {
-      log.error("error when parseJsonString! " + ex.getMessage());
+      log.error("error when parseJsonString!", ex);
       return null;
     }
   }

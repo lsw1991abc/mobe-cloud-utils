@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 /**
  * MobeObjectMapper.
  *
- * @author 李世伟
+ * @author lsw1991abc@gmail.com
  * @since 2019-02-21 10:42
  */
 public class MobeObjectMapper extends ObjectMapper {

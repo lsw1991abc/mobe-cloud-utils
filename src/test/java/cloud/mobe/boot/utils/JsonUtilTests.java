@@ -8,10 +8,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.Test;
 
 /**
- * TODO lishiwei desc.
+ * JsonUtil 单元测试.
  *
- * @author 李世伟
- * @since 2019-04-19 17:16
+ * @author lsw1991abc@gmail.com
+ * @since 2019-04-19 18:07
  */
 class JsonUtilTests {
 

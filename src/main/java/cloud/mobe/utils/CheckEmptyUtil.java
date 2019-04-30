@@ -1,4 +1,4 @@
-package cloud.mobe.boot.utils;
+package cloud.mobe.utils;
 
 import java.util.List;
 import java.util.Map;

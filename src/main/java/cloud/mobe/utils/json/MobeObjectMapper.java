@@ -1,4 +1,4 @@
-package cloud.mobe.boot.utils.json;
+package cloud.mobe.utils.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;

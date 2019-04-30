@@ -1,9 +1,9 @@
-package cloud.mobe.boot.utils;
+package cloud.mobe.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import cloud.mobe.boot.utils.entity.json.JsonEntity;
+import cloud.mobe.utils.entity.json.JsonEntity;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.Test;
 

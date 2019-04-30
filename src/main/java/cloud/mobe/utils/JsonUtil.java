@@ -1,9 +1,6 @@
-package cloud.mobe.boot.utils;
+package cloud.mobe.utils;
 
-import static cloud.mobe.boot.utils.CheckEmptyUtil.isEmpty;
-import static cloud.mobe.boot.utils.CheckEmptyUtil.isOrEmpty;
-
-import cloud.mobe.boot.utils.json.MobeObjectMapper;
+import cloud.mobe.utils.json.MobeObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
@@ -28,7 +25,7 @@ public final class JsonUtil {
    * @return 转换失败返回null, 否则返回json字符串
    */
   public static String getJsonString(Object value) {
-    if (isEmpty(value)) {
+    if (CheckEmptyUtil.isEmpty(value)) {
       return null;
     }
     MobeObjectMapper mapper = new MobeObjectMapper();
@@ -51,7 +48,7 @@ public final class JsonUtil {
   public static <T> T parseJsonString(String json, final Class<T> clz) {
     return parseJsonString(
         json,
-        isEmpty(clz)
+        CheckEmptyUtil.isEmpty(clz)
             ? null
             : new TypeReference<T>() {
               @Override
@@ -70,7 +67,7 @@ public final class JsonUtil {
    * @see #parseJsonString(String, Class)
    */
   public static <T> T parseJsonString(String json, TypeReference<T> ref) {
-    if (isOrEmpty(json, ref)) {
+    if (CheckEmptyUtil.isOrEmpty(json, ref)) {
       return null;
     }
     MobeObjectMapper mapper = new MobeObjectMapper();

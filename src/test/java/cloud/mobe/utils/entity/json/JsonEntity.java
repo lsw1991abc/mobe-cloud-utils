@@ -1,4 +1,4 @@
-package cloud.mobe.boot.utils.entity.json;
+package cloud.mobe.utils.entity.json;
 
 import lombok.Getter;
 import lombok.Setter;

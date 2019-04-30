@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019-02-21 10:33
  */
 @Slf4j
-public final class JsonUtil {
+public abstract class JsonUtil {
 
   /**
    * 将一个对象转换为json字符串.

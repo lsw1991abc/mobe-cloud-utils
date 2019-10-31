@@ -3,6 +3,7 @@ package cloud.mobe.utils;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.experimental.UtilityClass;
 
 /**
  * 校验为空的工具.
@@ -10,7 +11,8 @@ import java.util.Set;
  * @author lsw1991abc@gmail.com
  * @since 2019-02-14 09:43
  */
-public abstract class CheckEmptyUtil {
+@UtilityClass
+public class CheckEmptyUtil {
 
   /**
    * 判断一个参数是否为空.

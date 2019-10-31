@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  */
 public class MobeObjectMapper extends ObjectMapper {
 
+  /** 默认的ObjectMapper. */
   public MobeObjectMapper() {
     super();
     this.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)

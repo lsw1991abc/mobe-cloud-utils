@@ -1,12 +1,6 @@
+dist: bionic
 language: java
-
-script:
-  - jdk_switcher use oraclejdk8
-
 jdk:
   - oraclejdk8
-
-dist: trusty
-
 after_success:
   - mvn clean cobertura:cobertura coveralls:report

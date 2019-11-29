@@ -6,5 +6,7 @@ script:
 jdk:
   - oraclejdk8
 
+dist: trusty
+
 after_success:
   - mvn clean cobertura:cobertura coveralls:report

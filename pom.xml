@@ -6,7 +6,7 @@
 
   <groupId>cloud.mobe</groupId>
   <artifactId>mobe-cloud-utils</artifactId>
-  <version>1.0.4</version>
+  <version>1.0.5-SNAPSHOT</version>
 
   <packaging>jar</packaging>
   <url>https://github.com/lsw1991abc/mobe-cloud-utils</url>

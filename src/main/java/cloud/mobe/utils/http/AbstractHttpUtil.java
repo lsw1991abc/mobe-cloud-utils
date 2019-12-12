@@ -409,6 +409,15 @@ public abstract class AbstractHttpUtil {
     return format("Basic %s", encoded);
   }
 
+  /**
+   * 自定义的过滤器.
+   *
+   * <p>子类可以通过重写该方法,自定义请求过滤器
+   *
+   * <p>默认的{@link cloud.mobe.utils.MobeHttpUtil}没有实现任何过滤器
+   *
+   * @return 过滤器列表,默认空
+   */
   protected static List<Interceptor> customInterceptors() {
     return emptyList();
   }

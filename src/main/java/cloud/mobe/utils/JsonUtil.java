@@ -1,5 +1,8 @@
 package cloud.mobe.utils;
 
+import static cloud.mobe.utils.CheckEmptyUtil.isEmpty;
+import static cloud.mobe.utils.CheckEmptyUtil.isOrEmpty;
+
 import cloud.mobe.utils.json.MobeObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -20,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 @UtilityClass
 public class JsonUtil {
 
+  private static final MobeObjectMapper OBJECT_MAPPER = new MobeObjectMapper();
+
   /**
    * 将一个对象转换为json字符串.
    *
@@ -27,12 +32,11 @@ public class JsonUtil {
    * @return 转换失败返回null, 否则返回json字符串
    */
   public static String getJsonString(Object value) {
-    if (CheckEmptyUtil.isEmpty(value)) {
+    if (isEmpty(value)) {
       return null;
     }
-    MobeObjectMapper mapper = new MobeObjectMapper();
     try {
-      return mapper.writeValueAsString(value);
+      return OBJECT_MAPPER.writeValueAsString(value);
     } catch (JsonProcessingException ex) {
       log.error("error when getJsonString!", ex);
       return null;
@@ -50,7 +54,7 @@ public class JsonUtil {
   public static <T> T parseJsonString(String json, final Class<T> clz) {
     return parseJsonString(
         json,
-        CheckEmptyUtil.isEmpty(clz)
+        isEmpty(clz)
             ? null
             : new TypeReference<T>() {
               @Override
@@ -69,12 +73,11 @@ public class JsonUtil {
    * @see #parseJsonString(String, Class)
    */
   public static <T> T parseJsonString(String json, TypeReference<T> ref) {
-    if (CheckEmptyUtil.isOrEmpty(json, ref)) {
+    if (isOrEmpty(json, ref)) {
       return null;
     }
-    MobeObjectMapper mapper = new MobeObjectMapper();
     try {
-      return mapper.readValue(json, ref);
+      return OBJECT_MAPPER.readValue(json, ref);
     } catch (IOException ex) {
       log.error("error when parseJsonString!", ex);
       return null;

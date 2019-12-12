@@ -9,6 +9,18 @@ Mobe cloud utils
 ## Downloads
 ### Maven
 
+#### Github Packages
+
+```xml
+<dependency>
+  <groupId>cloud.mobe</groupId>
+  <artifactId>mobe-cloud-utils</artifactId>
+  <version>TAG</version>
+</dependency>
+```
+
+#### JitPack
+
 Add the JitPack repository to your build file
 ```xml
 <repositories>

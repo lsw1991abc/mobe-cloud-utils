@@ -5,6 +5,7 @@ import static com.google.common.net.MediaType.FORM_DATA;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import cloud.mobe.utils.entity.http.HttpEntity;
+import cloud.mobe.utils.http.MobeHttpUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Maps;
 import java.io.IOException;

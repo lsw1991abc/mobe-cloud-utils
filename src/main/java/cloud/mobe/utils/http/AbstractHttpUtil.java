@@ -3,7 +3,7 @@ package cloud.mobe.utils.http;
 import static cloud.mobe.utils.CheckEmptyUtil.isEmpty;
 import static cloud.mobe.utils.CheckEmptyUtil.isNotEmpty;
 import static cloud.mobe.utils.CheckEmptyUtil.isOrEmpty;
-import static cloud.mobe.utils.JsonUtil.parseJsonString;
+import static cloud.mobe.utils.json.JsonUtil.parseJsonString;
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static com.google.common.net.MediaType.FORM_DATA;
@@ -414,7 +414,7 @@ public abstract class AbstractHttpUtil {
    *
    * <p>子类可以通过重写该方法,自定义请求过滤器
    *
-   * <p>默认的{@link cloud.mobe.utils.MobeHttpUtil}没有实现任何过滤器
+   * <p>默认的{@link MobeHttpUtil}没有实现任何过滤器
    *
    * @return 过滤器列表,默认空
    */

@@ -1,9 +1,8 @@
-package cloud.mobe.utils;
+package cloud.mobe.utils.json;
 
 import static cloud.mobe.utils.CheckEmptyUtil.isEmpty;
 import static cloud.mobe.utils.CheckEmptyUtil.isOrEmpty;
 
-import cloud.mobe.utils.json.MobeObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;

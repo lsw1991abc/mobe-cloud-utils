@@ -1,6 +1,5 @@
-package cloud.mobe.utils;
+package cloud.mobe.utils.http;
 
-import cloud.mobe.utils.http.AbstractHttpUtil;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 

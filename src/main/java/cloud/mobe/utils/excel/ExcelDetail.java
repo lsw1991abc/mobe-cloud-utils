@@ -15,6 +15,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -32,6 +33,7 @@ public class ExcelDetail<T extends AbstractExcelDefinition> {
 
   /** 表格空间. */
   private Workbook workbook;
+  private FormulaEvaluator evaluator;
   /** 文件名称. */
   private String fileName;
   /** sheet页名称. */
@@ -89,7 +91,7 @@ public class ExcelDetail<T extends AbstractExcelDefinition> {
         // 获取单元格值
         Object cellValue;
         try {
-          cellValue = ExcelUtil.getCellValue(cell, (Class<?>) annotationField[3]);
+          cellValue = ExcelUtil.getCellValue(this.evaluator, cell, (Class<?>) annotationField[3]);
         } catch (Exception e) {
           // 如果忽略异常提示，则不设置dto数据
           if (ignoreCellValueException) {

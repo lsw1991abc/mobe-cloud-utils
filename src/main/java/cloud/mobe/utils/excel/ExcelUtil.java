@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +28,10 @@ import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -74,10 +75,15 @@ public class ExcelUtil {
           workbook = new HSSFWorkbook(file.getInputStream());
         } else {
           workbook = new XSSFWorkbook();
-          log.warn("未知的文件类型，文件名 - {}", fileName);
+          log.warn(
+              "未知的文件类型，文件名 - {}",
+              fileName);
         }
       } catch (OfficeXmlFileException e) {
-        log.warn("文件类型错误 - {}", e.getMessage(), e);
+        log.warn(
+            "文件类型错误 - {}",
+            e.getMessage(),
+            e);
         throw new MobeServiceException("文件后缀和内容不统一");
       }
     } else {
@@ -86,6 +92,8 @@ public class ExcelUtil {
       log.warn("读入文件流为空");
     }
     excelDetail.setWorkbook(workbook);
+    excelDetail.setEvaluator(workbook.getCreationHelper()
+                                     .createFormulaEvaluator());
     return excelDetail;
   }
 
@@ -122,12 +130,15 @@ public class ExcelUtil {
         continue;
       }
       try {
-        PropertyDescriptor propertyDescriptor = new PropertyDescriptor(declaredField.getName(),
+        PropertyDescriptor propertyDescriptor = new PropertyDescriptor(
+            declaredField.getName(),
             definitionClass);
         annotationFields.add(new Object[]{fieldAnnotation.index(),
             propertyDescriptor.getWriteMethod(), fieldAnnotation.name(), declaredField.getType()});
       } catch (IntrospectionException e) {
-        throw new MobeServiceException("未找到字段", e);
+        throw new MobeServiceException(
+            "未找到字段",
+            e);
       }
     }
     excelDetail.setAnnotationFields(annotationFields);
@@ -137,23 +148,31 @@ public class ExcelUtil {
   /**
    * 获取单元格数据.
    *
+   * @param evaluator
    * @param cell 单元格.
    * @param clz 实体类的类型
    * @return 单元格数值
    */
-  public static Object getCellValue(Cell cell, Class<?> clz) {
+  public static Object getCellValue(
+      FormulaEvaluator evaluator, Cell cell, Class<?> clz) {
     Object cellValue = null;
     // excel单元格数据类型
     try {
       CellType cellType = cell.getCellType();
+      if (log.isDebugEnabled()) {
+        log.debug(
+            "cell type - {}",
+            cellType);
+      }
       if (cellType == CellType.NUMERIC) {
         if (DateUtil.isCellDateFormatted(cell)) {
-          cellValue = String.valueOf(cell.getDateCellValue());
+          cellValue = cell.getDateCellValue();
         } else {
           cell.setCellType(CellType.STRING);
           String tempCellValue = cell.getStringCellValue();
           if (tempCellValue.contains(".")) {
-            cellValue = String.valueOf(Double.valueOf(tempCellValue)).trim();
+            cellValue = String.valueOf(Double.valueOf(tempCellValue))
+                              .trim();
           } else {
             cellValue = tempCellValue.trim();
           }
@@ -161,7 +180,15 @@ public class ExcelUtil {
       } else if (cellType == CellType.STRING) {
         cellValue = cell.getStringCellValue();
       } else if (cellType == CellType.FORMULA) {
-        cellValue = cell.getStringCellValue();
+        CellValue formulaCellValue = evaluator.evaluate(cell);
+        boolean isNumeric = formulaCellValue.getCellType() == CellType.NUMERIC;
+        cellValue = (isNumeric)
+                    ? formulaCellValue.getNumberValue()
+                    : formulaCellValue.getStringValue();
+        if (isNumeric && cellValue.toString()
+                                  .equals("0.0")) {
+          cellValue = cell.getNumericCellValue();
+        }
       } else if (cellType == CellType.BOOLEAN) {
         cellValue = cell.getBooleanCellValue();
       } else if (cellType == CellType.ERROR) {
@@ -170,27 +197,37 @@ public class ExcelUtil {
       if (cellValue == null) {
         return null;
       }
-
+      if (log.isDebugEnabled()) {
+        log.debug(
+            "cell value - {} - {}",
+            cellValue,
+            cellValue.getClass());
+      }
       // 实体类的数据类型
       if (clz == String.class) {
         cellValue = String.valueOf(cellValue.toString());
       } else if (clz == Integer.class) {
-        cellValue = Double.valueOf(cellValue.toString()).intValue();
+        cellValue = Double.valueOf(cellValue.toString())
+                          .intValue();
       } else if (clz == Long.class) {
-        cellValue = Double.valueOf(cellValue.toString()).longValue();
+        cellValue = Double.valueOf(cellValue.toString())
+                          .longValue();
       } else if (clz == Double.class) {
         cellValue = Double.valueOf(cellValue.toString());
       } else if (clz == Float.class) {
         cellValue = Float.valueOf(cellValue.toString());
-      } else if (clz == Date.class) {
-        cellValue = DateUtil.getJavaDate((Double) cellValue);
       } else if (clz == BigDecimal.class) {
         cellValue = new BigDecimal(cellValue.toString());
       }
       return cellValue;
     } catch (NumberFormatException | IllegalStateException e) {
-      log.warn("数据格式错误：第{}行，第{}列", (cell.getRowIndex() + 1), (cell.getColumnIndex() + 1), e);
-      throw new MobeServiceException(String.format("数据格式错误：第%s行，第%s列",
+      log.warn(
+          "数据格式错误：第{}行，第{}列",
+          (cell.getRowIndex() + 1),
+          (cell.getColumnIndex() + 1),
+          e);
+      throw new MobeServiceException(String.format(
+          "数据格式错误：第%s行，第%s列",
           (cell.getRowIndex() + 1),
           (cell.getColumnIndex() + 1)));
     }
@@ -206,7 +243,8 @@ public class ExcelUtil {
       throws IntrospectionException {
     ExcelStructureInfo structureInfo = new ExcelStructureInfo();
     // sheet 头信息
-    List<ExcelItemAnnotationInfo<ExcelHeader>> headerList = ExcelUtil.getAnnotationInfo(clz,
+    List<ExcelItemAnnotationInfo<ExcelHeader>> headerList = ExcelUtil.getAnnotationInfo(
+        clz,
         ExcelHeader.class);
     if (isNotEmpty(headerList)) {
       // 所有注解 header 的字段
@@ -218,7 +256,8 @@ public class ExcelUtil {
         ExcelHeader excelHeader = headerAnnotationInfo.getAnnotation();
         headerField.setIndex(excelHeader.index());
         // header 注解的类型里包含 column 注解的信息
-        List<ExcelItemAnnotationInfo<ExcelColumn>> columnList = ExcelUtil.getAnnotationInfo(headerAnnotationInfo.getFieldType(),
+        List<ExcelItemAnnotationInfo<ExcelColumn>> columnList = ExcelUtil.getAnnotationInfo(
+            headerAnnotationInfo.getFieldType(),
             ExcelColumn.class);
         if (isNotEmpty(columnList)) {
           List<DataField> dataFields = newArrayListWithExpectedSize(columnList.size());
@@ -233,9 +272,16 @@ public class ExcelUtil {
             // 样式, 当前CellUtil有19种设置，期待 map 大小设置为20
             Map<String, Object> headerCellStyle = newHashMapWithExpectedSize(20);
             headerCommonCellStyle(headerCellStyle);
-            headerCellStyle.put(CellUtil.FILL_FOREGROUND_COLOR, excelColumn.bgColor().getIndex());
-            headerCellStyle.put(CellUtil.VERTICAL_ALIGNMENT, excelColumn.vertical());
-            headerCellStyle.put(CellUtil.ALIGNMENT, excelColumn.horizontal());
+            headerCellStyle.put(
+                CellUtil.FILL_FOREGROUND_COLOR,
+                excelColumn.bgColor()
+                           .getIndex());
+            headerCellStyle.put(
+                CellUtil.VERTICAL_ALIGNMENT,
+                excelColumn.vertical());
+            headerCellStyle.put(
+                CellUtil.ALIGNMENT,
+                excelColumn.horizontal());
             dataField.setHeaderCellStyle(headerCellStyle);
 
             dataFields.add(dataField);
@@ -248,13 +294,16 @@ public class ExcelUtil {
     }
 
     // 数据头信息
-    List<ExcelItemAnnotationInfo<ExcelColumn>> columnList = ExcelUtil.getAnnotationInfo(clz,
+    List<ExcelItemAnnotationInfo<ExcelColumn>> columnList = ExcelUtil.getAnnotationInfo(
+        clz,
         ExcelColumn.class);
     if (isNotEmpty(columnList)) {
       List<DataField> dataFields = newArrayListWithExpectedSize(columnList.size());
       for (ExcelItemAnnotationInfo<ExcelColumn> columnAnnotationInfo : columnList) {
         PropertyDescriptor propertyDescriptor
-            = new PropertyDescriptor(columnAnnotationInfo.getFieldName(), clz);
+            = new PropertyDescriptor(
+            columnAnnotationInfo.getFieldName(),
+            clz);
         ExcelColumn excelColumn = columnAnnotationInfo.getAnnotation();
         DataField dataField = new DataField();
         dataField.setIndex(excelColumn.index());
@@ -265,19 +314,38 @@ public class ExcelUtil {
         // 样式, 当前CellUtil有19种设置，期待 map 大小设置为20
         Map<String, Object> headerCellStyle = newHashMapWithExpectedSize(20);
         headerCommonCellStyle(headerCellStyle);
-        headerCellStyle.put(CellUtil.ALIGNMENT, excelColumn.horizontal());
-        headerCellStyle.put(CellUtil.VERTICAL_ALIGNMENT, excelColumn.vertical());
-        headerCellStyle.put(CellUtil.FILL_FOREGROUND_COLOR, excelColumn.bgColor().getIndex());
-        headerCellStyle.put(CellUtil.FILL_PATTERN, FillPatternType.SOLID_FOREGROUND);
+        headerCellStyle.put(
+            CellUtil.ALIGNMENT,
+            excelColumn.horizontal());
+        headerCellStyle.put(
+            CellUtil.VERTICAL_ALIGNMENT,
+            excelColumn.vertical());
+        headerCellStyle.put(
+            CellUtil.FILL_FOREGROUND_COLOR,
+            excelColumn.bgColor()
+                       .getIndex());
+        headerCellStyle.put(
+            CellUtil.FILL_PATTERN,
+            FillPatternType.SOLID_FOREGROUND);
 
         dataField.setHeaderCellStyle(headerCellStyle);
 
         Map<String, Object> dataCellStyle = newHashMapWithExpectedSize(20);
-        dataCellStyle.put(CellUtil.ALIGNMENT, excelColumn.horizontal());
-        dataCellStyle.put(CellUtil.VERTICAL_ALIGNMENT, excelColumn.vertical());
-        dataCellStyle.put(CellUtil.FILL_FOREGROUND_COLOR, IndexedColors.WHITE.getIndex());
-        dataCellStyle.put(CellUtil.FILL_PATTERN, FillPatternType.SOLID_FOREGROUND);
-        dataCellStyle.put(CellUtil.WRAP_TEXT, true);
+        dataCellStyle.put(
+            CellUtil.ALIGNMENT,
+            excelColumn.horizontal());
+        dataCellStyle.put(
+            CellUtil.VERTICAL_ALIGNMENT,
+            excelColumn.vertical());
+        dataCellStyle.put(
+            CellUtil.FILL_FOREGROUND_COLOR,
+            IndexedColors.WHITE.getIndex());
+        dataCellStyle.put(
+            CellUtil.FILL_PATTERN,
+            FillPatternType.SOLID_FOREGROUND);
+        dataCellStyle.put(
+            CellUtil.WRAP_TEXT,
+            true);
         commonCellStyle(dataCellStyle);
         dataField.setDataCellStyle(dataCellStyle);
 
@@ -302,7 +370,10 @@ public class ExcelUtil {
       return EMPTY_LIST;
     }
     if (log.isDebugEnabled()) {
-      log.debug("declaredFields - {}, length - {}", clz, declaredFields.length);
+      log.debug(
+          "declaredFields - {}, length - {}",
+          clz,
+          declaredFields.length);
     }
     List<ExcelItemAnnotationInfo<A>> annotationFieldList = newArrayListWithExpectedSize(
         declaredFields.length);
@@ -331,8 +402,12 @@ public class ExcelUtil {
    */
   private static void headerCommonCellStyle(Map<String, Object> headerCellStyle) {
     commonCellStyle(headerCellStyle);
-    headerCellStyle.put(CellUtil.FILL_PATTERN, FillPatternType.SOLID_FOREGROUND);
-    headerCellStyle.put(CellUtil.WRAP_TEXT, true);
+    headerCellStyle.put(
+        CellUtil.FILL_PATTERN,
+        FillPatternType.SOLID_FOREGROUND);
+    headerCellStyle.put(
+        CellUtil.WRAP_TEXT,
+        true);
   }
 
   /**
@@ -341,15 +416,31 @@ public class ExcelUtil {
    * @param cellStyle 样式map
    */
   private static void commonCellStyle(Map<String, Object> cellStyle) {
-    cellStyle.put(CellUtil.BORDER_LEFT, BorderStyle.THIN);
-    cellStyle.put(CellUtil.BORDER_RIGHT, BorderStyle.THIN);
-    cellStyle.put(CellUtil.BORDER_TOP, BorderStyle.THIN);
-    cellStyle.put(CellUtil.BORDER_BOTTOM, BorderStyle.THIN);
+    cellStyle.put(
+        CellUtil.BORDER_LEFT,
+        BorderStyle.THIN);
+    cellStyle.put(
+        CellUtil.BORDER_RIGHT,
+        BorderStyle.THIN);
+    cellStyle.put(
+        CellUtil.BORDER_TOP,
+        BorderStyle.THIN);
+    cellStyle.put(
+        CellUtil.BORDER_BOTTOM,
+        BorderStyle.THIN);
 
-    cellStyle.put(CellUtil.LEFT_BORDER_COLOR, IndexedColors.BLACK.getIndex());
-    cellStyle.put(CellUtil.RIGHT_BORDER_COLOR, IndexedColors.BLACK.getIndex());
-    cellStyle.put(CellUtil.TOP_BORDER_COLOR, IndexedColors.BLACK.getIndex());
-    cellStyle.put(CellUtil.BOTTOM_BORDER_COLOR, IndexedColors.BLACK.getIndex());
+    cellStyle.put(
+        CellUtil.LEFT_BORDER_COLOR,
+        IndexedColors.BLACK.getIndex());
+    cellStyle.put(
+        CellUtil.RIGHT_BORDER_COLOR,
+        IndexedColors.BLACK.getIndex());
+    cellStyle.put(
+        CellUtil.TOP_BORDER_COLOR,
+        IndexedColors.BLACK.getIndex());
+    cellStyle.put(
+        CellUtil.BOTTOM_BORDER_COLOR,
+        IndexedColors.BLACK.getIndex());
   }
 
   /**
@@ -368,23 +459,63 @@ public class ExcelUtil {
     int lastColumn = address.getLastColumn();
 
     for (int i = firstRow; i <= lastRow; i++) {
-      Cell firstCell = CellUtil.getCell(CellUtil.getRow(i, sheet), firstColumn);
-      Cell lastCell = CellUtil.getCell(CellUtil.getRow(i, sheet), lastColumn);
+      Cell firstCell = CellUtil.getCell(
+          CellUtil.getRow(
+              i,
+              sheet),
+          firstColumn);
+      Cell lastCell = CellUtil.getCell(
+          CellUtil.getRow(
+              i,
+              sheet),
+          lastColumn);
 
-      CellUtil.setCellStyleProperty(firstCell, CellUtil.BORDER_LEFT, borderStyle);
-      CellUtil.setCellStyleProperty(firstCell, CellUtil.LEFT_BORDER_COLOR, color);
-      CellUtil.setCellStyleProperty(lastCell, CellUtil.BORDER_RIGHT, borderStyle);
-      CellUtil.setCellStyleProperty(lastCell, CellUtil.RIGHT_BORDER_COLOR, color);
+      CellUtil.setCellStyleProperty(
+          firstCell,
+          CellUtil.BORDER_LEFT,
+          borderStyle);
+      CellUtil.setCellStyleProperty(
+          firstCell,
+          CellUtil.LEFT_BORDER_COLOR,
+          color);
+      CellUtil.setCellStyleProperty(
+          lastCell,
+          CellUtil.BORDER_RIGHT,
+          borderStyle);
+      CellUtil.setCellStyleProperty(
+          lastCell,
+          CellUtil.RIGHT_BORDER_COLOR,
+          color);
     }
 
     for (int i = firstColumn; i <= lastColumn; i++) {
-      Cell firstCell = CellUtil.getCell(CellUtil.getRow(firstRow, sheet), i);
-      Cell lastCell = CellUtil.getCell(CellUtil.getRow(lastRow, sheet), i);
+      Cell firstCell = CellUtil.getCell(
+          CellUtil.getRow(
+              firstRow,
+              sheet),
+          i);
+      Cell lastCell = CellUtil.getCell(
+          CellUtil.getRow(
+              lastRow,
+              sheet),
+          i);
 
-      CellUtil.setCellStyleProperty(firstCell, CellUtil.BORDER_TOP, borderStyle);
-      CellUtil.setCellStyleProperty(firstCell, CellUtil.TOP_BORDER_COLOR, color);
-      CellUtil.setCellStyleProperty(lastCell, CellUtil.BORDER_BOTTOM, borderStyle);
-      CellUtil.setCellStyleProperty(lastCell, CellUtil.BOTTOM_BORDER_COLOR, color);
+      CellUtil.setCellStyleProperty(
+          firstCell,
+          CellUtil.BORDER_TOP,
+          borderStyle);
+      CellUtil.setCellStyleProperty(
+          firstCell,
+          CellUtil.TOP_BORDER_COLOR,
+          color);
+      CellUtil.setCellStyleProperty(
+          lastCell,
+          CellUtil.BORDER_BOTTOM,
+          borderStyle);
+      CellUtil.setCellStyleProperty(
+          lastCell,
+          CellUtil.BOTTOM_BORDER_COLOR,
+          color);
     }
   }
 

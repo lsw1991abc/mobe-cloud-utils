@@ -1,5 +1,7 @@
 package cloud.mobe.utils;
 
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +28,9 @@ public class CheckEmptyUtil {
    *     Array: 如果length为０，返回true.<br>
    *     Set: 返回set.isEmpty().<br>
    *     CharSequence: length为0或者toString后trim为空，则返回true.<br>
+   * @deprecated replaced by {@link StrUtil#isBlank(CharSequence)} , {@link cn.hutool.core.util.ObjectUtil#isEmpty(Object)}
    */
+  @Deprecated
   public static boolean isEmpty(Object object) {
     if (object == null) {
       return true;
@@ -80,7 +84,9 @@ public class CheckEmptyUtil {
    *
    * @param object 要判断的对象
    * @return 对象不为空返回true, 否则返回false
+   * @deprecated replaced by {@link StrUtil#isNotBlank(CharSequence)} , {@link cn.hutool.core.util.ObjectUtil#isNotEmpty(Object)}
    */
+  @Deprecated
   public static boolean isNotEmpty(Object object) {
     return !isEmpty(object);
   }
@@ -97,7 +103,10 @@ public class CheckEmptyUtil {
     }
 
     for (Object object : objects) {
-      if (isEmpty(object)) {
+      if (ObjectUtil.isEmpty(object)) {
+        return true;
+      }
+      if (object instanceof CharSequence && StrUtil.isBlank((CharSequence) object)) {
         return true;
       }
     }
@@ -117,9 +126,13 @@ public class CheckEmptyUtil {
     }
 
     for (Object object : objects) {
-      if (!isEmpty(object)) {
-        return false;
+      if (ObjectUtil.isEmpty(object)) {
+        continue;
       }
+      if (object instanceof CharSequence && StrUtil.isBlank((CharSequence) object)) {
+        continue;
+      }
+      return false;
     }
 
     return true;
